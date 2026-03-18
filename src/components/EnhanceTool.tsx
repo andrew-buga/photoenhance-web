@@ -16,6 +16,7 @@ export default function EnhanceTool() {
   const [phase, setPhase] = useState<Phase>("idle");
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [afterPreviewUrl, setAfterPreviewUrl] = useState<string | null>(null);
   const [imageSize, setImageSize] = useState<ImageSize | null>(null);
   const [scale, setScale] = useState<(typeof SCALE_OPTIONS)[number]>(4);
   const [adOpen, setAdOpen] = useState(false);
@@ -29,6 +30,13 @@ export default function EnhanceTool() {
     if (!previewUrl) return;
     return () => URL.revokeObjectURL(previewUrl);
   }, [previewUrl]);
+
+  useEffect(() => {
+    if (!afterPreviewUrl) return;
+    if (afterPreviewUrl.startsWith("blob:")) {
+      return () => URL.revokeObjectURL(afterPreviewUrl);
+    }
+  }, [afterPreviewUrl]);
 
   useEffect(() => {
     const onPaste = (event: ClipboardEvent) => {
@@ -88,17 +96,44 @@ export default function EnhanceTool() {
     };
   }, [imageSize, scale]);
 
+  const createEnhancedPreview = (sourceUrl: string) =>
+    new Promise<string | null>((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          resolve(null);
+          return;
+        }
+        ctx.filter = "contrast(1.12) saturate(1.12)";
+        ctx.drawImage(img, 0, 0);
+        resolve(canvas.toDataURL("image/jpeg", 0.92));
+      };
+      img.onerror = () => resolve(null);
+      img.src = sourceUrl;
+    });
+
   const handleFile = (selected: File) => {
     setFile(selected);
     const url = URL.createObjectURL(selected);
     setPreviewUrl(url);
     setPhase("ready");
+    setAfterPreviewUrl(null);
 
     const img = new Image();
     img.onload = () => {
       setImageSize({ width: img.width, height: img.height });
     };
     img.src = url;
+
+    createEnhancedPreview(url).then((enhancedUrl) => {
+      if (enhancedUrl) {
+        setAfterPreviewUrl(enhancedUrl);
+      }
+    });
   };
 
   const handleFiles = (files: FileList | null) => {
@@ -128,6 +163,7 @@ export default function EnhanceTool() {
     setPhase("idle");
     setFile(null);
     setPreviewUrl(null);
+    setAfterPreviewUrl(null);
     setImageSize(null);
     setScale(4);
     setAdOpen(false);
@@ -246,7 +282,13 @@ export default function EnhanceTool() {
                 Ready
               </span>
             </div>
-            <BeforeAfterSlider beforeUrl={previewUrl} afterUrl={previewUrl} />
+            <BeforeAfterSlider
+              beforeUrl={previewUrl}
+              afterUrl={afterPreviewUrl ?? previewUrl}
+              aspectRatio={
+                imageSize ? `${imageSize.width}/${imageSize.height}` : undefined
+              }
+            />
             <div className="flex flex-wrap gap-3">
               <a
                 href={previewUrl}

@@ -6,21 +6,26 @@ type BeforeAfterSliderProps = {
   beforeUrl: string;
   afterUrl: string;
   alt?: string;
+  aspectRatio?: string;
 };
 
 export default function BeforeAfterSlider({
   beforeUrl,
   afterUrl,
   alt = "Photo preview",
+  aspectRatio,
 }: BeforeAfterSliderProps) {
   const [position, setPosition] = useState(50);
 
   return (
-    <div className="relative w-full overflow-hidden rounded-3xl border border-[var(--border)] bg-[var(--surface)] shadow-lg">
+    <div
+      className="relative w-full overflow-hidden rounded-3xl border border-[var(--border)] bg-[var(--surface)] shadow-lg"
+      style={aspectRatio ? { aspectRatio } : undefined}
+    >
       <img
         src={afterUrl}
         alt={alt}
-        className="h-full w-full object-cover"
+        className="absolute inset-0 h-full w-full object-cover"
       />
       <div
         className="absolute inset-y-0 left-0 overflow-hidden"
@@ -29,7 +34,7 @@ export default function BeforeAfterSlider({
         <img
           src={beforeUrl}
           alt={alt}
-          className="h-full w-full object-cover"
+          className="absolute inset-0 h-full w-full object-cover"
         />
       </div>
       <div

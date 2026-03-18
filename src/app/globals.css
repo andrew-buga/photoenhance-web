@@ -44,6 +44,10 @@ a {
   text-decoration: none;
 }
 
+.bg-\[var\(--text\)\] {
+  color: #ffffff;
+}
+
 .hero-glow {
   position: absolute;
   inset: -40% auto auto -20%;
