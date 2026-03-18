@@ -17,10 +17,11 @@ export default function PrivacyPolicyPage() {
           <li>Anonymous usage metrics (page views, device type).</li>
           <li>Basic performance data to improve speed.</li>
         </ul>
-        <h2 className="mt-8 text-xl font-bold">Ads</h2>
+        <h2 className="mt-8 text-xl font-bold">Ads and cookies</h2>
         <p className="mt-3 text-[var(--muted)]">
-          We display ads to keep the service free. Ads may use cookies to show
-          relevant content based on your interests.
+          We display ads to keep the service free. Ads may use cookies and
+          device identifiers to show relevant content. You can accept or decline
+          optional cookies from the consent banner.
         </p>
       </main>
       <SiteFooter />

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import AdSlot from "@/components/AdSlot";
 import BeforeAfterSlider from "@/components/BeforeAfterSlider";
+import useAnalytics from "@/components/useAnalytics";
 
 type ImageSize = { width: number; height: number };
 
@@ -25,6 +26,7 @@ export default function EnhanceTool() {
   const [processingDone, setProcessingDone] = useState(false);
   const [showAlmostDone, setShowAlmostDone] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const { track } = useAnalytics();
 
   useEffect(() => {
     if (!previewUrl) return;
@@ -122,6 +124,7 @@ export default function EnhanceTool() {
     setPreviewUrl(url);
     setPhase("ready");
     setAfterPreviewUrl(null);
+    track({ action: "upload", category: "enhance" });
 
     const img = new Image();
     img.onload = () => {
@@ -148,6 +151,7 @@ export default function EnhanceTool() {
 
   const handleStart = () => {
     if (!file || !previewUrl) return;
+    track({ action: "enhance_start", category: "enhance", label: `x${scale}` });
     setPhase("processing");
     setAdOpen(true);
     setAdSeconds(5);
@@ -156,6 +160,7 @@ export default function EnhanceTool() {
 
   const closeAd = () => {
     if (!adCanClose) return;
+    track({ action: "ad_close", category: "ads" });
     setAdOpen(false);
   };
 
@@ -180,6 +185,9 @@ export default function EnhanceTool() {
     const ext = extIndex > 0 ? file.name.slice(extIndex) : ".jpg";
     return `${base}_x${scale}${ext}`;
   }, [file, scale]);
+
+  const sidebarSlot = process.env.NEXT_PUBLIC_ADSENSE_SLOT_SIDEBAR;
+  const overlaySlot = process.env.NEXT_PUBLIC_ADSENSE_SLOT_OVERLAY;
 
   return (
     <div className="grid gap-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
@@ -293,6 +301,9 @@ export default function EnhanceTool() {
               <a
                 href={previewUrl}
                 download={downloadName}
+                onClick={() =>
+                  track({ action: "download", category: "enhance" })
+                }
                 className="rounded-full bg-[var(--text)] px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:shadow-xl"
               >
                 Download enhanced photo
@@ -322,7 +333,11 @@ export default function EnhanceTool() {
             A single, focused ad keeps PhotoEnhance free for everyone.
           </p>
           <div className="mt-4">
-            <AdSlot label="AdSense placement" size="square" />
+            <AdSlot
+              label="AdSense placement"
+              size="square"
+              slot={sidebarSlot}
+            />
           </div>
         </div>
         <div className="rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-lg">
@@ -359,7 +374,7 @@ export default function EnhanceTool() {
               </button>
             </div>
             <div className="mt-4">
-              <AdSlot label="Ad slot" size="wide" />
+              <AdSlot label="Ad slot" size="wide" slot={overlaySlot} />
             </div>
             <p className="mt-4 text-sm text-[var(--muted)]">
               Your photo is enhancing in the background.

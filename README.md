@@ -18,3 +18,15 @@ Landing page and tool UI for PhotoEnhance. The site is built with Next.js App Ro
 
 - Ad placements are placeholders and should be replaced with AdSense snippets.
 - Enhancement processing is UI-only right now and should be wired to the final AI engine.
+
+## AdSense configuration
+
+Copy `.env.example` to `.env.local` and fill in your AdSense values:
+
+- `NEXT_PUBLIC_ADSENSE_CLIENT`
+- `NEXT_PUBLIC_ADSENSE_SLOT_SIDEBAR`
+- `NEXT_PUBLIC_ADSENSE_SLOT_OVERLAY`
+
+## Analytics configuration
+
+- `NEXT_PUBLIC_GA_ID`
