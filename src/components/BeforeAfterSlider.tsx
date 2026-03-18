@@ -45,9 +45,9 @@ export default function BeforeAfterSlider({
       </div>
       <div
         className="pointer-events-none absolute inset-y-0 flex items-center"
-        style={{ left: `calc(${position}% - 22px)` }}
+        style={{ left: `calc(${position}% - 28px)` }}
       >
-        <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-lg font-bold text-[var(--text)] shadow-[0_10px_30px_rgba(0,0,0,0.2)]">
+        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white text-xl font-bold text-[var(--text)] shadow-[0_10px_30px_rgba(0,0,0,0.2)]">
           <span className="sr-only">Drag</span>
           <span aria-hidden>↔</span>
         </div>
@@ -58,7 +58,7 @@ export default function BeforeAfterSlider({
         max={100}
         value={position}
         onChange={(event) => setPosition(Number(event.target.value))}
-        className="absolute inset-0 h-full w-full cursor-ew-resize opacity-0"
+        className="absolute inset-0 h-full w-full cursor-ew-resize opacity-0 touch-none"
         aria-label="Before after slider"
       />
       <div className="pointer-events-none absolute bottom-4 left-4 rounded-full bg-black/65 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white">

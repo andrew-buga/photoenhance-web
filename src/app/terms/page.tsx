@@ -18,6 +18,12 @@ export default function TermsPage() {
           <li>Respect copyrights and privacy of others.</li>
           <li>Do not attempt to abuse or overload the service.</li>
         </ul>
+        <h2 className="mt-8 text-xl font-bold">Advertising and compliance</h2>
+        <p className="mt-3 text-[var(--muted)]">
+          PhotoEnhance is supported by ads. You agree not to manipulate ads,
+          generate fraudulent clicks, or misuse monetization features.
+        </p>
+        <p className="mt-6 text-[var(--muted)]">Contact: support@photoenhance.me</p>
       </main>
       <SiteFooter />
     </div>

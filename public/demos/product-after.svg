@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900">
+  <rect width="1200" height="900" fill="#dbeafe"/>
+  <rect x="280" y="180" width="640" height="560" rx="48" fill="#64748b"/>
+  <rect x="360" y="250" width="480" height="420" rx="24" fill="#e2e8f0"/>
+  <rect x="450" y="340" width="300" height="240" rx="20" fill="#1e293b"/>
+  <path d="M460 540 Q600 460 740 540" stroke="#22d3ee" stroke-width="8" fill="none"/>
+  <text x="600" y="640" text-anchor="middle" fill="#0f172a" font-size="52" font-family="Arial" font-weight="700">SNEAKER PRO</text>
+</svg>

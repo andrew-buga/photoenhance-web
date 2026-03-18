@@ -1,28 +1,25 @@
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
+import Link from "next/link";
 
 export default function PrivacyPolicyPage() {
   return (
     <div className="min-h-screen bg-[var(--bg)]">
       <SiteHeader />
       <main className="mx-auto max-w-3xl px-6 py-16">
-        <h1 className="text-3xl font-extrabold">Privacy Policy</h1>
+        <h1 className="text-3xl font-extrabold">Privacy Policy (Legacy URL)</h1>
         <p className="mt-4 text-[var(--muted)]">
-          PhotoEnhance does not store or upload your photos. All processing is
-          intended to happen on your device. We only collect basic analytics to
-          understand traffic and improve performance.
+          This route is kept for backward compatibility.
         </p>
-        <h2 className="mt-8 text-xl font-bold">What we collect</h2>
-        <ul className="mt-3 list-disc space-y-2 pl-6 text-[var(--muted)]">
-          <li>Anonymous usage metrics (page views, device type).</li>
-          <li>Basic performance data to improve speed.</li>
-        </ul>
-        <h2 className="mt-8 text-xl font-bold">Ads and cookies</h2>
-        <p className="mt-3 text-[var(--muted)]">
-          We display ads to keep the service free. Ads may use cookies and
-          device identifiers to show relevant content. You can accept or decline
-          optional cookies from the consent banner.
+        <p className="mt-4 text-[var(--muted)]">
+          Please see the latest policy page for current terms and data handling.
         </p>
+        <Link
+          href="/privacy"
+          className="mt-6 inline-flex min-h-12 items-center rounded-full bg-[var(--text)] px-6 py-3 text-sm font-semibold text-white"
+        >
+          Open current Privacy Policy
+        </Link>
       </main>
       <SiteFooter />
     </div>

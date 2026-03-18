@@ -1,5 +1,7 @@
 "use client";
 
+import { useCallback } from "react";
+
 type AnalyticsEvent = {
   action: string;
   category: string;
@@ -8,7 +10,7 @@ type AnalyticsEvent = {
 };
 
 export default function useAnalytics() {
-  const track = ({ action, category, label, value }: AnalyticsEvent) => {
+  const track = useCallback(({ action, category, label, value }: AnalyticsEvent) => {
     if (typeof window === "undefined") return;
     if (typeof window.gtag !== "function") return;
     window.gtag("event", action, {
@@ -16,7 +18,7 @@ export default function useAnalytics() {
       event_label: label,
       value,
     });
-  };
+  }, []);
 
   return { track };
 }

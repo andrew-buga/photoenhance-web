@@ -12,11 +12,17 @@ export default function SiteFooter() {
           </p>
         </div>
         <div className="flex flex-wrap gap-4 font-semibold">
-          <Link href="/privacy-policy" className="transition hover:text-[var(--text)]">
+          <Link href="/privacy" className="transition hover:text-[var(--text)]">
             Privacy Policy
           </Link>
           <Link href="/terms" className="transition hover:text-[var(--text)]">
             Terms
+          </Link>
+          <Link href="/cookies" className="transition hover:text-[var(--text)]">
+            Cookies
+          </Link>
+          <Link href="/how-to-upscale-image" className="transition hover:text-[var(--text)]">
+            Guide
           </Link>
           <Link href="/contact" className="transition hover:text-[var(--text)]">
             Contact

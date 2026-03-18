@@ -82,6 +82,22 @@ a {
   animation: fadeUp 0.7s ease both;
 }
 
+.min-h-12 {
+  min-height: 48px;
+}
+
+@media (max-width: 360px) {
+  .px-6 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .py-16 {
+    padding-top: 2.5rem;
+    padding-bottom: 2.5rem;
+  }
+}
+
 @keyframes fadeUp {
   from {
     opacity: 0;

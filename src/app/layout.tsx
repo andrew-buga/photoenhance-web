@@ -19,7 +19,7 @@ const baseUrl = new URL("https://photoenhance-web.vercel.app");
 
 export const metadata: Metadata = {
   title: {
-    default: "PhotoEnhance - AI Photo Upscaler",
+    default: "Free AI Image Upscaler | PhotoEnhance",
     template: "%s | PhotoEnhance",
   },
   description:
@@ -37,19 +37,28 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   openGraph: {
-    title: "PhotoEnhance - AI Photo Upscaler",
+    title: "Free AI Image Upscaler | PhotoEnhance",
     description:
       "Enhance photo quality in seconds. Free AI upscaler with smooth before/after preview and instant download.",
     url: baseUrl,
     siteName: "PhotoEnhance",
     locale: "en_US",
     type: "website",
+    images: [
+      {
+        url: "/og-image.svg",
+        width: 1200,
+        height: 630,
+        alt: "PhotoEnhance Free AI Image Upscaler",
+      },
+    ],
   },
   twitter: {
     card: "summary",
-    title: "PhotoEnhance - AI Photo Upscaler",
+    title: "Free AI Image Upscaler | PhotoEnhance",
     description:
       "Enhance photo quality in seconds. Free AI upscaler with smooth before/after preview and instant download.",
+    images: ["/og-image.svg"],
   },
 };
 

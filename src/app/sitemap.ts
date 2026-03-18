@@ -7,6 +7,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     { url: `${baseUrl}/`, lastModified: now },
     { url: `${baseUrl}/enhance`, lastModified: now },
+    { url: `${baseUrl}/how-to-upscale-image`, lastModified: now },
+    { url: `${baseUrl}/privacy`, lastModified: now },
+    { url: `${baseUrl}/cookies`, lastModified: now },
     { url: `${baseUrl}/privacy-policy`, lastModified: now },
     { url: `${baseUrl}/terms`, lastModified: now },
     { url: `${baseUrl}/contact`, lastModified: now },

@@ -1,86 +1,17 @@
-import Link from "next/link";
+import DemoShowcase from "@/components/DemoShowcase";
+import HeroSection from "@/components/HeroSection";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
+import StickyCTA from "@/components/StickyCTA";
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-[var(--bg)]">
       <SiteHeader />
       <main>
-        <section className="relative overflow-hidden">
-          <div className="hero-glow" />
-          <div className="hero-glow-2" />
-          <div className="mx-auto grid max-w-6xl gap-12 px-6 py-20 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
-            <div className="space-y-6 fade-up">
-              <div className="inline-flex items-center gap-2 rounded-full bg-[var(--surface)] px-4 py-2 text-xs font-semibold uppercase tracking-widest text-[var(--muted)] shadow">
-                Free AI upscaler
-              </div>
-              <h1 className="text-4xl font-extrabold tracking-tight text-[var(--text)] md:text-6xl">
-                Enhance photos in seconds, no signup required.
-              </h1>
-              <p className="max-w-xl text-lg text-[var(--muted)]">
-                PhotoEnhance upgrades everyday photos for ecommerce listings,
-                social media, and personal memories. Fast, free, and always on
-                your device.
-              </p>
-              <div className="flex flex-wrap gap-4">
-                <Link
-                  href="/enhance"
-                  className="rounded-full bg-[var(--accent-1)] px-8 py-4 text-sm font-semibold text-white shadow-lg transition hover:-translate-y-0.5 hover:shadow-xl"
-                >
-                  Enhance Photo
-                </Link>
-                <Link
-                  href="/#how"
-                  className="rounded-full border border-[var(--border)] bg-[var(--surface)] px-8 py-4 text-sm font-semibold text-[var(--text)]"
-                >
-                  See how it works
-                </Link>
-              </div>
-              <div className="flex flex-wrap gap-6 text-sm text-[var(--muted)]">
-                <div>
-                  <span className="text-2xl font-bold text-[var(--text)]">
-                    12,482
-                  </span>
-                  <div>photos enhanced today</div>
-                </div>
-                <div>
-                  <span className="text-2xl font-bold text-[var(--text)]">
-                    5s
-                  </span>
-                  <div>average processing time</div>
-                </div>
-                <div>
-                  <span className="text-2xl font-bold text-[var(--text)]">
-                    0
-                  </span>
-                  <div>uploads stored</div>
-                </div>
-              </div>
-            </div>
-            <div className="rounded-[32px] border border-[var(--border)] bg-[var(--surface)] p-6 shadow-xl">
-              <div className="rounded-3xl bg-[var(--surface-2)] p-6">
-                <div className="text-sm font-semibold text-[var(--muted)]">
-                  Live preview
-                </div>
-                <div className="mt-4 h-64 rounded-2xl bg-gradient-to-br from-[var(--accent-1)] via-[var(--accent-3)] to-[var(--accent-2)]" />
-                <div className="mt-4 flex items-center justify-between text-sm">
-                  <span className="font-semibold">Before / After slider</span>
-                  <span className="text-[var(--muted)]">Drag to compare</span>
-                </div>
-              </div>
-              <div className="mt-6 flex items-center justify-between rounded-2xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-sm">
-                <span className="font-semibold">Ready to try?</span>
-                <Link
-                  href="/enhance"
-                  className="rounded-full bg-[var(--text)] px-4 py-2 text-xs font-semibold text-white"
-                >
-                  Start now
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
+        <HeroSection />
+
+        <DemoShowcase />
 
         <section className="mx-auto max-w-6xl px-6 py-12">
           <div className="grid gap-6 md:grid-cols-3">
@@ -113,6 +44,26 @@ export default function Home() {
                 </p>
               </div>
             ))}
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-6xl px-6 pb-10">
+          <div className="grid gap-6 md:grid-cols-2">
+            <div className="rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-lg">
+              <h2 className="text-2xl font-extrabold">Why trust us?</h2>
+              <ul className="mt-4 space-y-3 text-sm text-[var(--muted)]">
+                <li>We do not permanently store your original photo.</li>
+                <li>Transparent free model supported by ads.</li>
+                <li>Clear before/after comparison before download.</li>
+              </ul>
+            </div>
+            <div className="rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-lg">
+              <h2 className="text-2xl font-extrabold">Trusted by creators, sellers, and families</h2>
+              <p className="mt-4 text-sm text-[var(--muted)]">
+                PhotoEnhance is used for ecommerce product photos, social posts,
+                and personal memory restoration every day.
+              </p>
+            </div>
           </div>
         </section>
 
@@ -173,12 +124,24 @@ export default function Home() {
                 a: "No. The goal is to process directly on your device.",
               },
               {
+                q: "Is it safe for private images?",
+                a: "Yes. Processing is temporary and we do not keep your files as permanent content.",
+              },
+              {
                 q: "What formats are supported?",
                 a: "JPG and PNG are supported on launch, with more to follow.",
               },
               {
                 q: "How fast is it?",
-                a: "Most photos enhance in under five seconds on modern devices.",
+                a: "Most photos are processed in about 4 to 6 seconds depending on size.",
+              },
+              {
+                q: "Do I need to pay?",
+                a: "No signup and no payment are required for the core enhancement flow.",
+              },
+              {
+                q: "How is this tool monetized?",
+                a: "PhotoEnhance is supported by lightweight ads shown during or near processing.",
               },
             ].map((item) => (
               <div
@@ -193,6 +156,7 @@ export default function Home() {
         </section>
       </main>
       <SiteFooter />
+      <StickyCTA />
     </div>
   );
 }

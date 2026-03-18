@@ -12,6 +12,12 @@ export default function SiteHeader() {
           <Link href="/enhance" className="transition hover:text-[var(--text)]">
             Enhance
           </Link>
+          <Link
+            href="/how-to-upscale-image"
+            className="transition hover:text-[var(--text)]"
+          >
+            Guide
+          </Link>
           <Link href="/#how" className="transition hover:text-[var(--text)]">
             How it works
           </Link>
@@ -22,9 +28,9 @@ export default function SiteHeader() {
         <div className="flex items-center gap-3">
           <Link
             href="/enhance"
-            className="hidden rounded-full bg-[var(--text)] px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:shadow-lg md:inline-flex"
+            className="hidden min-h-12 items-center rounded-full bg-[var(--text)] px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:shadow-lg md:inline-flex"
           >
-            Enhance photo
+            Enhance Photo - Free
           </Link>
           <ThemeToggle />
         </div>

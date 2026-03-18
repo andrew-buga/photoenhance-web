@@ -7,11 +7,60 @@ import useAnalytics from "@/components/useAnalytics";
 
 type ImageSize = { width: number; height: number };
 
-type Phase = "idle" | "ready" | "processing" | "done";
+type Phase = "idle" | "ready" | "processing" | "done" | "error";
 
 const SCALE_OPTIONS = [2, 4, 6] as const;
-const AD_DURATION_MS = 5000;
-const PROCESSING_MS = 4200;
+
+async function createLocalUpscale(file: File, scale: number): Promise<string> {
+  const url = URL.createObjectURL(file);
+  const img = new Image();
+
+  await new Promise<void>((resolve, reject) => {
+    img.onload = () => resolve();
+    img.onerror = () => reject(new Error("Failed to load image"));
+    img.src = url;
+  });
+
+  const canvas = document.createElement("canvas");
+  canvas.width = img.width * scale;
+  canvas.height = img.height * scale;
+
+  const ctx = canvas.getContext("2d");
+  if (!ctx) {
+    URL.revokeObjectURL(url);
+    throw new Error("Canvas context unavailable");
+  }
+
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+  ctx.filter = "contrast(1.14) saturate(1.12)";
+  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+  URL.revokeObjectURL(url);
+  return canvas.toDataURL("image/jpeg", 0.93);
+}
+
+async function requestUpscale(file: File, scale: number): Promise<string> {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("scale", String(scale));
+
+  const response = await fetch("/api/upscale", {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!response.ok) {
+    throw new Error("Upscale API request failed");
+  }
+
+  const data = (await response.json()) as { outputUrl?: string };
+  if (!data.outputUrl) {
+    throw new Error("No output returned");
+  }
+
+  return data.outputUrl;
+}
 
 export default function EnhanceTool() {
   const [phase, setPhase] = useState<Phase>("idle");
@@ -21,11 +70,12 @@ export default function EnhanceTool() {
   const [imageSize, setImageSize] = useState<ImageSize | null>(null);
   const [scale, setScale] = useState<(typeof SCALE_OPTIONS)[number]>(4);
   const [adOpen, setAdOpen] = useState(false);
-  const [adSeconds, setAdSeconds] = useState(5);
-  const [adCanClose, setAdCanClose] = useState(false);
-  const [processingDone, setProcessingDone] = useState(false);
+  const [adSeconds, setAdSeconds] = useState(4);
+  const [progress, setProgress] = useState(0);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showAlmostDone, setShowAlmostDone] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const successTrackedRef = useRef(false);
   const { track } = useAnalytics();
 
   useEffect(() => {
@@ -57,38 +107,33 @@ export default function EnhanceTool() {
 
   useEffect(() => {
     if (phase !== "processing") return;
-    setProcessingDone(false);
-    setShowAlmostDone(false);
-
-    const processingTimer = setTimeout(() => {
-      setProcessingDone(true);
-    }, PROCESSING_MS);
 
     const adTimer = setInterval(() => {
-      setAdSeconds((prev) => {
-        if (prev <= 1) {
-          setAdCanClose(true);
-          clearInterval(adTimer);
-          return 0;
-        }
-        return prev - 1;
-      });
+      setAdSeconds((prev) => (prev > 0 ? prev - 1 : 0));
     }, 1000);
 
+    const progressTimer = setInterval(() => {
+      setProgress((prev) => (prev < 92 ? prev + 4 : prev));
+    }, 280);
+
     return () => {
-      clearTimeout(processingTimer);
       clearInterval(adTimer);
+      clearInterval(progressTimer);
     };
   }, [phase]);
 
   useEffect(() => {
-    if (!adOpen && phase === "processing" && !processingDone) {
+    if (!adOpen && phase === "processing") {
       setShowAlmostDone(true);
     }
-    if (!adOpen && phase === "processing" && processingDone) {
-      setPhase("done");
+  }, [adOpen, phase]);
+
+  useEffect(() => {
+    if (phase === "done" && !successTrackedRef.current) {
+      track({ action: "enhance_success", category: "enhance", label: `x${scale}` });
+      successTrackedRef.current = true;
     }
-  }, [adOpen, phase, processingDone]);
+  }, [phase, scale, track]);
 
   const outputSize = useMemo(() => {
     if (!imageSize) return null;
@@ -98,31 +143,15 @@ export default function EnhanceTool() {
     };
   }, [imageSize, scale]);
 
-  const createEnhancedPreview = (sourceUrl: string) =>
-    new Promise<string | null>((resolve) => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement("canvas");
-        canvas.width = img.width;
-        canvas.height = img.height;
-        const ctx = canvas.getContext("2d");
-        if (!ctx) {
-          resolve(null);
-          return;
-        }
-        ctx.filter = "contrast(1.12) saturate(1.12)";
-        ctx.drawImage(img, 0, 0);
-        resolve(canvas.toDataURL("image/jpeg", 0.92));
-      };
-      img.onerror = () => resolve(null);
-      img.src = sourceUrl;
-    });
-
   const handleFile = (selected: File) => {
+    successTrackedRef.current = false;
     setFile(selected);
     const url = URL.createObjectURL(selected);
     setPreviewUrl(url);
     setPhase("ready");
+    setProgress(0);
+    setErrorMessage(null);
+    setShowAlmostDone(false);
     setAfterPreviewUrl(null);
     track({ action: "upload", category: "enhance" });
 
@@ -132,11 +161,6 @@ export default function EnhanceTool() {
     };
     img.src = url;
 
-    createEnhancedPreview(url).then((enhancedUrl) => {
-      if (enhancedUrl) {
-        setAfterPreviewUrl(enhancedUrl);
-      }
-    });
   };
 
   const handleFiles = (files: FileList | null) => {
@@ -149,18 +173,34 @@ export default function EnhanceTool() {
     handleFiles(event.dataTransfer.files);
   };
 
-  const handleStart = () => {
+  const handleStart = async () => {
     if (!file || !previewUrl) return;
-    track({ action: "enhance_start", category: "enhance", label: `x${scale}` });
+    track({ action: "enhance_started", category: "enhance", label: `x${scale}` });
     setPhase("processing");
+    setProgress(8);
     setAdOpen(true);
-    setAdSeconds(5);
-    setAdCanClose(false);
+    setAdSeconds(4);
+    setErrorMessage(null);
+
+    try {
+      let outputUrl: string;
+      try {
+        outputUrl = await requestUpscale(file, scale);
+      } catch {
+        outputUrl = await createLocalUpscale(file, scale);
+      }
+
+      setAfterPreviewUrl(outputUrl);
+      setProgress(100);
+      setPhase("done");
+    } catch {
+      setErrorMessage("Processing failed. Please try another image.");
+      setPhase("error");
+    }
   };
 
   const closeAd = () => {
-    if (!adCanClose) return;
-    track({ action: "ad_close", category: "ads" });
+    track({ action: "ad_closed", category: "ads" });
     setAdOpen(false);
   };
 
@@ -171,10 +211,10 @@ export default function EnhanceTool() {
     setAfterPreviewUrl(null);
     setImageSize(null);
     setScale(4);
+    setProgress(0);
     setAdOpen(false);
-    setAdSeconds(5);
-    setAdCanClose(false);
-    setProcessingDone(false);
+    setAdSeconds(4);
+    setErrorMessage(null);
     setShowAlmostDone(false);
   };
 
@@ -199,7 +239,11 @@ export default function EnhanceTool() {
                 Upload. Enhance. Download.
               </h1>
               <p className="mt-3 text-base text-[var(--muted)]">
-                Paste, drag, or choose a photo. Your image stays on your device.
+                Paste, drag, or choose a photo. No signup required and no
+                permanent upload storage.
+              </p>
+              <p className="mt-2 text-sm font-semibold text-[var(--muted)]">
+                Average processing: 4-6 seconds.
               </p>
             </div>
 
@@ -224,7 +268,7 @@ export default function EnhanceTool() {
               <button
                 type="button"
                 onClick={() => inputRef.current?.click()}
-                className="mt-4 rounded-full bg-[var(--text)] px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:shadow-lg"
+                className="mt-4 min-h-12 rounded-full bg-[var(--text)] px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:shadow-lg"
               >
                 Choose a photo
               </button>
@@ -273,16 +317,37 @@ export default function EnhanceTool() {
                 <button
                   type="button"
                   onClick={handleStart}
-                  className="w-full rounded-full bg-[var(--accent-1)] px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:-translate-y-0.5 hover:shadow-xl"
+                  className="w-full min-h-12 rounded-full bg-[var(--accent-1)] px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:-translate-y-0.5 hover:shadow-xl"
                 >
                   Download
                 </button>
               </div>
             )}
+
+            {phase === "processing" && (
+              <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface-2)] p-4">
+                <div className="mb-2 flex items-center justify-between text-sm font-semibold text-[var(--muted)]">
+                  <span>Enhancing image...</span>
+                  <span>{progress}%</span>
+                </div>
+                <div className="h-2 w-full overflow-hidden rounded-full bg-white/60">
+                  <div
+                    className="h-full rounded-full bg-[var(--accent-2)] transition-all duration-300"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {phase === "error" && errorMessage && (
+              <div className="rounded-2xl border border-red-300 bg-red-50 p-4 text-sm text-red-700">
+                {errorMessage}
+              </div>
+            )}
           </div>
         </div>
 
-        {phase === "done" && previewUrl && (
+        {phase === "done" && previewUrl && afterPreviewUrl && (
           <div className="space-y-6 rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-8 shadow-xl">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-bold">Result</h2>
@@ -292,26 +357,26 @@ export default function EnhanceTool() {
             </div>
             <BeforeAfterSlider
               beforeUrl={previewUrl}
-              afterUrl={afterPreviewUrl ?? previewUrl}
+              afterUrl={afterPreviewUrl}
               aspectRatio={
                 imageSize ? `${imageSize.width}/${imageSize.height}` : undefined
               }
             />
             <div className="flex flex-wrap gap-3">
               <a
-                href={previewUrl}
+                href={afterPreviewUrl}
                 download={downloadName}
                 onClick={() =>
-                  track({ action: "download", category: "enhance" })
+                  track({ action: "download_clicked", category: "enhance" })
                 }
-                className="rounded-full bg-[var(--text)] px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:shadow-xl"
+                className="min-h-12 rounded-full bg-[var(--text)] px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:shadow-xl"
               >
                 Download enhanced photo
               </a>
               <button
                 type="button"
                 onClick={resetAll}
-                className="rounded-full border border-[var(--border)] px-6 py-3 text-sm font-semibold text-[var(--text)]"
+                className="min-h-12 rounded-full border border-[var(--border)] px-6 py-3 text-sm font-semibold text-[var(--text)]"
               >
                 Enhance another photo
               </button>
@@ -326,11 +391,11 @@ export default function EnhanceTool() {
         )}
       </div>
 
-      <aside className="space-y-6">
+      <aside className="hidden space-y-6 lg:block">
         <div className="rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-lg">
           <h3 className="text-lg font-bold text-[var(--text)]">Sponsored</h3>
           <p className="mt-2 text-sm text-[var(--muted)]">
-            A single, focused ad keeps PhotoEnhance free for everyone.
+            A single optional sidebar ad keeps PhotoEnhance free for everyone.
           </p>
           <div className="mt-4">
             <AdSlot
@@ -354,7 +419,7 @@ export default function EnhanceTool() {
       </aside>
 
       {adOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-6">
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/55 p-4 md:items-center">
           <div className="w-full max-w-lg rounded-3xl bg-[var(--surface)] p-6 shadow-2xl">
             <div className="flex items-center justify-between">
               <div className="text-sm font-semibold text-[var(--muted)]">
@@ -363,21 +428,16 @@ export default function EnhanceTool() {
               <button
                 type="button"
                 onClick={closeAd}
-                disabled={!adCanClose}
-                className={`rounded-full px-3 py-1 text-xs font-semibold uppercase ${
-                  adCanClose
-                    ? "bg-[var(--text)] text-white"
-                    : "bg-[var(--surface-2)] text-[var(--muted)]"
-                }`}
+                className="rounded-full bg-[var(--text)] px-3 py-1 text-xs font-semibold uppercase text-white"
               >
-                {adCanClose ? "Close" : `Skip in ${adSeconds}s`}
+                {adSeconds > 0 ? `Skip (${adSeconds})` : "Skip"}
               </button>
             </div>
             <div className="mt-4">
               <AdSlot label="Ad slot" size="wide" slot={overlaySlot} />
             </div>
             <p className="mt-4 text-sm text-[var(--muted)]">
-              Your photo is enhancing in the background.
+              Sponsored message while we process your image.
             </p>
           </div>
         </div>
