@@ -1,26 +1,83 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #f8fafc;
+  --text: #0f172a;
+  --muted: #5b6474;
+  --surface: #ffffff;
+  --surface-2: #f1f5f9;
+  --border: #e2e8f0;
+  --accent-1: #ff5a5f;
+  --accent-2: #00c2a8;
+  --accent-3: #ffd166;
+}
+
+[data-theme="dark"] {
+  --bg: #0b0f14;
+  --text: #f8fafc;
+  --muted: #9aa3b2;
+  --surface: #111827;
+  --surface-2: #1f2937;
+  --border: #2f3b4d;
+  --accent-1: #ff7a7f;
+  --accent-2: #29d3b2;
+  --accent-3: #ffd977;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-sans: var(--font-sora);
+  --font-display: var(--font-space);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sora), system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.hero-glow {
+  position: absolute;
+  inset: -40% auto auto -20%;
+  height: 420px;
+  width: 420px;
+  background: radial-gradient(circle, rgba(255, 90, 95, 0.35), transparent 65%);
+  filter: blur(10px);
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+.hero-glow-2 {
+  position: absolute;
+  right: -10%;
+  top: -20%;
+  height: 360px;
+  width: 360px;
+  background: radial-gradient(circle, rgba(0, 194, 168, 0.3), transparent 70%);
+  filter: blur(8px);
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+.fade-up {
+  animation: fadeUp 0.7s ease both;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
