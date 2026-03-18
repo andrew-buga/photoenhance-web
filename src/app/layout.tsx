@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Sora, Space_Grotesk } from "next/font/google";
+import Script from "next/script";
 import AdSenseLoader from "@/components/AdSenseLoader";
 import AnalyticsLoader from "@/components/AnalyticsLoader";
 import CookieBanner from "@/components/CookieBanner";
@@ -16,6 +17,7 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 const baseUrl = new URL("https://photoenhance-web.vercel.app");
+const measurementId = process.env.NEXT_PUBLIC_GA_ID || "G-KQ4MZMLV8J";
 
 export const metadata: Metadata = {
   title: {
@@ -69,6 +71,27 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" data-theme="light" suppressHydrationWarning>
+      <head>
+        <Script
+          id="ga4-head-script"
+          strategy="beforeInteractive"
+          src={`https://www.googletagmanager.com/gtag/js?id=${measurementId}`}
+        />
+        <Script id="ga4-head-config" strategy="beforeInteractive">
+          {`window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+window.gtag = window.gtag || gtag;
+window.gtag('consent', 'default', {
+  analytics_storage: 'denied',
+  ad_storage: 'denied',
+  ad_user_data: 'denied',
+  ad_personalization: 'denied',
+  wait_for_update: 500
+});
+window.gtag('js', new Date());
+window.gtag('config', '${measurementId}', { anonymize_ip: true });`}
+        </Script>
+      </head>
       <body
         className={`${sora.variable} ${spaceGrotesk.variable} min-h-screen antialiased`}
       >
