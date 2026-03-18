@@ -12,8 +12,9 @@ type AnalyticsEvent = {
 export default function useAnalytics() {
   const track = useCallback(({ action, category, label, value }: AnalyticsEvent) => {
     if (typeof window === "undefined") return;
-    if (typeof window.gtag !== "function") return;
-    window.gtag("event", action, {
+    const gtag = (window as Window & { gtag?: (...args: unknown[]) => void }).gtag;
+    if (typeof gtag !== "function") return;
+    gtag("event", action, {
       event_category: category,
       event_label: label,
       value,
