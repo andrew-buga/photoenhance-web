@@ -66,13 +66,12 @@ export default function BeforeAfterSlider({
       {/* Before Image (Overlay) */}
       <div
         className="absolute inset-0 h-full overflow-hidden"
-        style={{ width: `${position}%`, transition: isDragging ? "none" : "width 0.1s ease-out" }}
+        style={{ width: `${position}%` }}
       >
         <img
           src={beforeUrl}
           alt={`${alt} - Original`}
           className="h-full w-full object-cover select-none pointer-events-none"
-          style={{ width: `${(100 / position) * 100}%` }}
           draggable={false}
         />
       </div>
