@@ -82,7 +82,7 @@ export default function EnhanceTool() {
   const [scale, setScale] = useState<(typeof SCALE_OPTIONS)[number]>(4);
   const [progress, setProgress] = useState(0);
   const [adSeconds, setAdSeconds] = useState(4);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string>("");
   const [showAlmostDone, setShowAlmostDone] = useState(false);
 
   const successTrackedRef = useRef(false);
@@ -146,7 +146,7 @@ export default function EnhanceTool() {
     setPreviewUrl(url);
     setPhase("ready");
     setProgress(0);
-    setErrorMessage(null);
+    setErrorMessage("");
     setShowAlmostDone(false);
     setAfterPreviewUrl(null);
     setScale(4);
@@ -162,7 +162,7 @@ export default function EnhanceTool() {
     setPhase("processing");
     setProgress(8);
     setAdSeconds(4);
-    setErrorMessage(null);
+    setErrorMessage("");
     try {
       let outputUrl: string;
       try {
@@ -204,7 +204,7 @@ export default function EnhanceTool() {
     setScale(4);
     setProgress(0);
     setAdSeconds(4);
-    setErrorMessage(null);
+    setErrorMessage("");
     setShowAlmostDone(false);
     successTrackedRef.current = false;
   }, []);
@@ -242,7 +242,7 @@ export default function EnhanceTool() {
             <p className="mt-2 text-sm text-[var(--muted)]">Preview and select enhancement level</p>
           </div>
           <div className="rounded-2xl border border-[var(--border)] bg-black shadow-lg overflow-hidden">
-            <img src={previewUrl} alt="Uploaded" className="w-full h-auto max-h-[400px] object-contain" />
+            <img src={previewUrl!} alt="Uploaded" className="w-full h-auto max-h-[400px] object-contain" />
           </div>
           <ScaleSelector selectedScale={scale} onScaleChange={setScale} imageSize={imageSize} />
           {errorMessage && (

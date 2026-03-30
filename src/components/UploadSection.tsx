@@ -21,12 +21,12 @@ export default function UploadSection({ onFileSelect }: UploadSectionProps) {
     handleFile(files[0]);
   }, [handleFile]);
 
-  const handleDrop = useCallback((event: React.DragEvent<HTMLDivElement>) => {
+  const handleDrop = useCallback((event: React.DragEvent<HTMLElement>) => {
     event.preventDefault();
     handleFiles(event.dataTransfer.files);
   }, [handleFiles]);
 
-  const handlePaste = useCallback((event: ClipboardEvent) => {
+  const handlePaste = useCallback((event: React.ClipboardEvent<HTMLLabelElement>) => {
     const item = event.clipboardData?.items?.[0];
     if (!item) return;
     if (item.type.startsWith("image/")) {

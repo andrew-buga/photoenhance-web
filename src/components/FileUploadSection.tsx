@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 
 type FileUploadSectionProps = {
   onFileSelect: (file: File) => void;
@@ -52,7 +52,7 @@ export default function FileUploadSection({
     [handleFile]
   );
 
-  React.useEffect(() => {
+  useEffect(() => {
     window.addEventListener("paste", handlePaste);
     return () => window.removeEventListener("paste", handlePaste);
   }, [handlePaste]);
