@@ -12,7 +12,10 @@ async function upscaleWithReplicate(
   mimeType: string
 ): Promise<string | null> {
   const token = process.env.REPLICATE_API_TOKEN;
-  if (!token) return null;
+  if (!token) {
+    console.error("[Upscale] No REPLICATE_API_TOKEN found in environment");
+    return null;
+  }
 
   const input = {
     image: `data:${mimeType};base64,${imageBase64}`,
@@ -20,60 +23,81 @@ async function upscaleWithReplicate(
     face_enhance: false,
   };
 
-  const response = await fetch("https://api.replicate.com/v1/predictions", {
-    method: "POST",
-    headers: {
-      Authorization: `Token ${token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ version: replicateVersion, input }),
-  });
-
-  if (!response.ok) {
-    return null;
-  }
-
-  const prediction = (await response.json()) as {
-    id: string;
-    status: string;
-    output?: string | string[];
-    urls?: { get?: string };
-  };
-
-  const statusUrl = prediction.urls?.get;
-  if (!statusUrl) return null;
-
-  for (let i = 0; i < 30; i += 1) {
-    const statusResponse = await fetch(statusUrl, {
+  try {
+    console.log("[Upscale] Starting Replicate API call...");
+    const response = await fetch("https://api.replicate.com/v1/predictions", {
+      method: "POST",
       headers: {
         Authorization: `Token ${token}`,
+        "Content-Type": "application/json",
       },
-      cache: "no-store",
+      body: JSON.stringify({ version: replicateVersion, input }),
     });
 
-    if (!statusResponse.ok) break;
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`[Upscale] API returned ${response.status}:`, errorText);
+      return null;
+    }
 
-    const statusData = (await statusResponse.json()) as {
+    const prediction = (await response.json()) as {
+      id: string;
       status: string;
       output?: string | string[];
+      urls?: { get?: string };
     };
 
-    if (statusData.status === "succeeded") {
-      if (typeof statusData.output === "string") return statusData.output;
-      if (Array.isArray(statusData.output) && statusData.output[0]) {
-        return statusData.output[0];
+    console.log("[Upscale] Prediction created:", prediction.id);
+
+    const statusUrl = prediction.urls?.get;
+    if (!statusUrl) {
+      console.error("[Upscale] No status URL in response");
+      return null;
+    }
+
+    for (let i = 0; i < 30; i += 1) {
+      const statusResponse = await fetch(statusUrl, {
+        headers: {
+          Authorization: `Token ${token}`,
+        },
+        cache: "no-store",
+      });
+
+      if (!statusResponse.ok) {
+        console.error(`[Upscale] Status check failed: ${statusResponse.status}`);
+        break;
       }
-      break;
+
+      const statusData = (await statusResponse.json()) as {
+        status: string;
+        output?: string | string[];
+      };
+
+      console.log(`[Upscale] Status check ${i + 1}/30: ${statusData.status}`);
+
+      if (statusData.status === "succeeded") {
+        console.log("[Upscale] Success! Returning output...");
+        if (typeof statusData.output === "string") return statusData.output;
+        if (Array.isArray(statusData.output) && statusData.output[0]) {
+          return statusData.output[0];
+        }
+        break;
+      }
+
+      if (statusData.status === "failed" || statusData.status === "canceled") {
+        console.error("[Upscale] Processing failed:", statusData.status);
+        break;
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 700));
     }
 
-    if (statusData.status === "failed" || statusData.status === "canceled") {
-      break;
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, 700));
+    console.warn("[Upscale] Timeout: Did not get result after 30 checks");
+    return null;
+  } catch (error) {
+    console.error("[Upscale] Exception:", error);
+    return null;
   }
-
-  return null;
 }
 
 export async function POST(request: NextRequest) {
@@ -102,18 +126,23 @@ export async function POST(request: NextRequest) {
     const arrayBuffer = await file.arrayBuffer();
     const base64 = Buffer.from(arrayBuffer).toString("base64");
 
+    console.log(`[Upscale] Received file: ${file.name} (${file.size} bytes), scale: x${scale}`);
+
     const replicateUrl = await upscaleWithReplicate(base64, scale, file.type);
 
     if (replicateUrl) {
+      console.log("[Upscale] Returning Replicate result");
       return NextResponse.json({ outputUrl: replicateUrl, provider: "replicate" });
     }
 
-    // Fallback: return original file as data URL when API token is absent.
+    // Fallback: return original file as data URL when API fails
+    console.warn("[Upscale] Falling back to canvas upscaling (no Replicate result)");
     return NextResponse.json({
       outputUrl: `data:${file.type};base64,${base64}`,
       provider: "fallback",
     });
-  } catch {
-    return NextResponse.json({ error: "Upscale failed" }, { status: 500 });
+  } catch (error) {
+    console.error("[Upscale] Exception in POST handler:", error);
+    return NextResponse.json({ error: "Upscale failed: " + String(error) }, { status: 500 });
   }
 }
