@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { forwardRef, useRef, useState } from "react";
 
 type BeforeAfterSliderProps = {
   beforeUrl: string;
@@ -9,74 +9,65 @@ type BeforeAfterSliderProps = {
   aspectRatio?: string;
 };
 
-export default function BeforeAfterSlider({
-  beforeUrl,
-  afterUrl,
-  alt = "Photo preview",
-  aspectRatio,
-}: BeforeAfterSliderProps) {
-  const [isDragging, setIsDragging] = useState(false);
-  const [position, setPosition] = useState(50);
-  const containerRef = useRef<HTMLDivElement>(null);
+export default forwardRef<HTMLDivElement, BeforeAfterSliderProps>(
+  function BeforeAfterSlider(
+    { beforeUrl, afterUrl, alt = "Photo preview", aspectRatio }: BeforeAfterSliderProps,
+    ref
+  ) {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const [position, setPosition] = useState(50);
+    const [isDragging, setIsDragging] = useState(false);
 
-  // Log image dimensions for debugging
-  const handleAfterImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    const img = e.currentTarget;
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`[BeforeAfterSlider] After (enhanced) image loaded: ${img.naturalWidth}x${img.naturalHeight}`);
-    }
-  };
+    const handleMouseDown = () => setIsDragging(true);
+    const handleMouseUp = () => setIsDragging(false);
 
-  const handleBeforeImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    const img = e.currentTarget;
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`[BeforeAfterSlider] Before (original) image loaded: ${img.naturalWidth}x${img.naturalHeight}`);
-    }
-  };
+    const handleAfterImageLoad = () => {
+      if (process.env.NODE_ENV === "development") {
+        console.log("After image loaded");
+      }
+    };
 
-  const handleMouseDown = () => {
-    setIsDragging(true);
-  };
+    const handleBeforeImageLoad = () => {
+      if (process.env.NODE_ENV === "development") {
+        console.log("Before image loaded");
+      }
+    };
 
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
+    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+      if (!isDragging || !containerRef.current) return;
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!isDragging || !containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      const newPosition = ((e.clientX - rect.left) / rect.width) * 100;
+      setPosition(Math.max(0, Math.min(100, newPosition)));
+    };
 
-    const rect = containerRef.current.getBoundingClientRect();
-    const newPosition = ((e.clientX - rect.left) / rect.width) * 100;
-    setPosition(Math.max(0, Math.min(100, newPosition)));
-  };
+    const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+      if (!isDragging || !containerRef.current) return;
 
-  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
-    if (!isDragging || !containerRef.current) return;
+      const touch = e.touches[0];
+      const rect = containerRef.current.getBoundingClientRect();
+      const newPosition = ((touch.clientX - rect.left) / rect.width) * 100;
+      setPosition(Math.max(0, Math.min(100, newPosition)));
+    };
 
-    const rect = containerRef.current.getBoundingClientRect();
-    const touch = e.touches[0];
-    const newPosition = ((touch.clientX - rect.left) / rect.width) * 100;
-    setPosition(Math.max(0, Math.min(100, newPosition)));
-  };
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+      switch (e.key) {
+        case "ArrowLeft":
+          e.preventDefault();
+          setPosition((prev) => Math.max(0, prev - 5));
+          break;
+        case "ArrowRight":
+          e.preventDefault();
+          setPosition((prev) => Math.min(100, prev + 5));
+          break;
+        default:
+          break;
+      }
+    };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    switch (e.key) {
-      case "ArrowLeft":
-        e.preventDefault();
-        setPosition((prev) => Math.max(0, prev - 5));
-        break;
-      case "ArrowRight":
-        e.preventDefault();
-        setPosition((prev) => Math.min(100, prev + 5));
-        break;
-      default:
-        break;
-    }
-  };
-
-  return (
-    <div
-      ref={containerRef}
+    return (
+      <div
+        ref={ref || containerRef}
       className="relative w-full overflow-hidden rounded-2xl border border-[var(--border)] bg-black shadow-2xl"
       style={aspectRatio ? { aspectRatio } : { aspectRatio: "16/10" }}
       role="slider"
@@ -175,3 +166,4 @@ export default function BeforeAfterSlider({
     </div>
   );
 }
+);

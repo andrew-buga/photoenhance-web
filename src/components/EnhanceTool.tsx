@@ -75,6 +75,7 @@ export default function EnhanceTool() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showAlmostDone, setShowAlmostDone] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const sliderRef = useRef<HTMLDivElement | null>(null);
   const successTrackedRef = useRef(false);
   const { track } = useAnalytics();
 
@@ -227,6 +228,14 @@ export default function EnhanceTool() {
     setShowAlmostDone(false);
   };
 
+  const handleDownload = () => {
+    track({ action: "download_clicked", category: "enhance" });
+    // Scroll to slider with smooth animation
+    setTimeout(() => {
+      sliderRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 100);
+  };
+
   const downloadName = useMemo(() => {
     if (!file) return "photoenhance_x4";
     const extIndex = file.name.lastIndexOf(".");
@@ -367,6 +376,7 @@ export default function EnhanceTool() {
               </span>
             </div>
             <BeforeAfterSlider
+              ref={sliderRef}
               beforeUrl={previewUrl}
               afterUrl={afterPreviewUrl}
               aspectRatio={
@@ -377,9 +387,7 @@ export default function EnhanceTool() {
               <a
                 href={afterPreviewUrl}
                 download={downloadName}
-                onClick={() =>
-                  track({ action: "download_clicked", category: "enhance" })
-                }
+                onClick={handleDownload}
                 className="min-h-12 rounded-full bg-[var(--text)] px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:shadow-xl"
               >
                 Download enhanced photo
