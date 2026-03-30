@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import AdSlot from "@/components/AdSlot";
 import BeforeAfterSlider from "@/components/BeforeAfterSlider";
 import useAnalytics from "@/components/useAnalytics";
