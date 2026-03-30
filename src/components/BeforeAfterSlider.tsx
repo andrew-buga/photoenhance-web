@@ -55,28 +55,24 @@ export default function BeforeAfterSlider({
       onTouchMove={handleTouchMove}
       onTouchEnd={handleMouseUp}
     >
-      {/* After Image (Background) */}
+      {/* After Image (Background) - the enhanced version */}
       <img
-        key="after"
         src={afterUrl}
         alt={`${alt} - Enhanced`}
         className="absolute inset-0 h-full w-full object-cover select-none pointer-events-none"
         draggable={false}
       />
 
-      {/* Before Image (Overlay) with clip */}
-      <div
-        className="absolute inset-0 h-full overflow-hidden"
-        style={{ width: `${position}%` }}
-      >
-        <img
-          key="before"
-          src={beforeUrl}
-          alt={`${alt} - Original`}
-          className="absolute inset-0 h-full w-screen object-cover select-none pointer-events-none"
-          draggable={false}
-        />
-      </div>
+      {/* Before Image (Overlay) - the original version, clipped by position */}
+      <img
+        src={beforeUrl}
+        alt={`${alt} - Original`}
+        className="absolute inset-0 h-full w-full object-cover select-none pointer-events-none"
+        style={{
+          clipPath: `inset(0 ${100 - position}% 0 0)`,
+        }}
+        draggable={false}
+      />
 
       {/* Divider Line */}
       <div
@@ -86,7 +82,9 @@ export default function BeforeAfterSlider({
 
       {/* Draggable Handle */}
       <div
-        className={`absolute inset-y-0 flex items-center transition-opacity ${isDragging ? "opacity-100" : "opacity-70 hover:opacity-100"}`}
+        className={`absolute inset-y-0 flex items-center transition-opacity ${
+          isDragging ? "opacity-100" : "opacity-70 hover:opacity-100"
+        }`}
         style={{ left: `${position}%`, transform: "translateX(-50%)", cursor: "ew-resize" }}
         onMouseDown={handleMouseDown}
         onTouchStart={() => setIsDragging(true)}
@@ -98,8 +96,18 @@ export default function BeforeAfterSlider({
             viewBox="0 0 24 24"
             stroke="currentColor"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19l7-7-7-7" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 19l7-7-7-7"
+            />
           </svg>
         </div>
       </div>
