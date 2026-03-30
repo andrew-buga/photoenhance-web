@@ -3,6 +3,7 @@ import HeroSection from "@/components/HeroSection";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import StickyCTA from "@/components/StickyCTA";
+import UploadSection from "@/components/UploadSection";
 
 export default function Home() {
   return (
@@ -10,6 +11,11 @@ export default function Home() {
       <SiteHeader />
       <main>
         <HeroSection />
+
+        {/* Upload Section */}
+        <section className="mx-auto max-w-6xl px-6 py-12">
+          <UploadSection />
+        </section>
 
         <DemoShowcase />
 

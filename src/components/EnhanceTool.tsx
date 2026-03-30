@@ -295,27 +295,38 @@ export default function EnhanceTool() {
             </div>
 
             {previewUrl && imageSize && (
-              <div className="space-y-4 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <div className="text-sm font-semibold text-[var(--text)]">
-                      Original
-                    </div>
-                    <div className="text-sm text-[var(--muted)]">
-                      {imageSize.width} x {imageSize.height} px
-                    </div>
-                  </div>
-                  {outputSize && (
-                    <div className="text-right">
+              <div className="space-y-4">
+                {/* Image Preview */}
+                <div className="rounded-2xl border border-[var(--border)] bg-black shadow-lg overflow-hidden">
+                  <img
+                    src={previewUrl}
+                    alt="Uploaded preview"
+                    className="w-full h-auto max-h-[400px] object-contain"
+                  />
+                </div>
+
+                {/* Size Information and Scale Selection */}
+                <div className="space-y-4 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
                       <div className="text-sm font-semibold text-[var(--text)]">
-                        Output size
+                        Original
                       </div>
                       <div className="text-sm text-[var(--muted)]">
-                        {outputSize.width} x {outputSize.height} px
+                        {imageSize.width} x {imageSize.height} px
                       </div>
                     </div>
-                  )}
-                </div>
+                    {outputSize && (
+                      <div className="text-right">
+                        <div className="text-sm font-semibold text-[var(--text)]">
+                          Enhanced size
+                        </div>
+                        <div className="text-sm text-[var(--muted)]">
+                          {outputSize.width} x {outputSize.height} px
+                        </div>
+                      </div>
+                    )}
+                  </div>
 
                 <div className="flex flex-wrap gap-3">
                   {SCALE_OPTIONS.map((option) => (
