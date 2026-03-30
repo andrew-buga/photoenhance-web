@@ -38,6 +38,9 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/",
   },
+  verification: {
+    google: "8067856882124743",
+  },
   openGraph: {
     title: "Free AI Image Upscaler | PhotoEnhance",
     description:
