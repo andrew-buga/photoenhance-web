@@ -76,6 +76,13 @@ export default function RootLayout({
     <html lang="en" data-theme="light" suppressHydrationWarning>
       <head>
         <meta name="google-adsense-account" content="ca-pub-8067856882124743" />
+        {/* Google Consent Management Platform */}
+        <Script
+          id="google-cmp"
+          strategy="beforeInteractive"
+          src="https://cdn.consentmanager.net/consent/ca-pub-8067856882124743/5a54b60f7502ebc5/consent.js"
+          async
+        />
         <Script
           id="ga4-head-script"
           strategy="beforeInteractive"
