@@ -6,6 +6,7 @@ import ScaleSelector from "@/components/ScaleSelector";
 import ProcessingProgress from "@/components/ProcessingProgress";
 import ResultsDisplay from "@/components/ResultsDisplay";
 import useAnalytics from "@/components/useAnalytics";
+import { getCSRFToken } from "@/lib/csrf";
 
 type ImageSize = { width: number; height: number };
 type Phase = "idle" | "ready" | "processing" | "done" | "error";
@@ -46,13 +47,21 @@ async function requestUpscale(file: File, scale: number): Promise<string> {
   formData.append("file", file);
   formData.append("scale", String(scale));
 
+  // Get CSRF token for security
+  const csrfToken = await getCSRFToken();
+
   const response = await fetch("/api/upscale", {
     method: "POST",
+    headers: {
+      "x-csrf-token": csrfToken,
+    },
     body: formData,
   });
 
   if (!response.ok) {
-    throw new Error("Upscale API request failed");
+    const errorData = (await response.json()) as { error?: string };
+    const errorMessage = errorData.error || "Upscale API request failed";
+    throw new Error(errorMessage);
   }
 
   const data = (await response.json()) as { outputUrl?: string };
@@ -158,14 +167,29 @@ export default function EnhanceTool() {
       let outputUrl: string;
       try {
         outputUrl = await requestUpscale(file, scale);
-      } catch {
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : "Unknown error";
+        
+        // Check for specific security errors
+        if (errorMessage.includes("Too many requests")) {
+          throw new Error("Too many requests. Please wait before trying again.");
+        }
+        if (errorMessage.includes("CSRF validation failed")) {
+          throw new Error("Security validation failed. Please refresh the page and try again.");
+        }
+        if (errorMessage.includes("appears to be corrupted")) {
+          throw new Error("File appears invalid or corrupted. Please try another image.");
+        }
+        
+        // Fallback to client-side upscaling
         outputUrl = await createLocalUpscale(file, scale);
       }
       setAfterPreviewUrl(outputUrl);
       setProgress(100);
       setPhase("done");
-    } catch {
-      setErrorMessage("Processing failed. Please try another image or a different scale.");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Processing failed. Please try another image or a different scale.";
+      setErrorMessage(message);
       setPhase("error");
       track({ action: "enhance_error", category: "enhance", label: scale.toString() });
     }
