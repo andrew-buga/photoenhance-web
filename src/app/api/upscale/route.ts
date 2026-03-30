@@ -135,12 +135,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ outputUrl: replicateUrl, provider: "replicate" });
     }
 
-    // Fallback: return original file as data URL when API fails
-    console.warn("[Upscale] Falling back to canvas upscaling (no Replicate result)");
-    return NextResponse.json({
-      outputUrl: `data:${file.type};base64,${base64}`,
-      provider: "fallback",
-    });
+    // No Replicate result - let client handle upscaling
+    console.warn("[Upscale] Replicate failed, delegating to client-side upscaling");
+    return NextResponse.json({ error: "Replicate upscaling failed" }, { status: 503 });
   } catch (error) {
     console.error("[Upscale] Exception in POST handler:", error);
     return NextResponse.json({ error: "Upscale failed: " + String(error) }, { status: 500 });
