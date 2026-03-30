@@ -57,21 +57,23 @@ export default function BeforeAfterSlider({
     >
       {/* After Image (Background) */}
       <img
+        key="after"
         src={afterUrl}
         alt={`${alt} - Enhanced`}
         className="absolute inset-0 h-full w-full object-cover select-none pointer-events-none"
         draggable={false}
       />
 
-      {/* Before Image (Overlay) */}
+      {/* Before Image (Overlay) with clip */}
       <div
         className="absolute inset-0 h-full overflow-hidden"
         style={{ width: `${position}%` }}
       >
         <img
+          key="before"
           src={beforeUrl}
           alt={`${alt} - Original`}
-          className="h-full w-full object-cover select-none pointer-events-none"
+          className="absolute inset-0 h-full w-screen object-cover select-none pointer-events-none"
           draggable={false}
         />
       </div>
