@@ -28,7 +28,7 @@ export default function SiteHeader() {
         <div className="flex items-center gap-3">
           <Link
             href="/enhance"
-            className="hidden min-h-12 items-center rounded-full bg-[var(--text)] px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:shadow-lg md:inline-flex"
+            className="hidden min-h-12 items-center rounded-full bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-blue-500/20 transition hover:bg-blue-700 hover:shadow-lg md:inline-flex"
           >
             Enhance Photo - Free
           </Link>
