@@ -75,6 +75,7 @@ export default function RootLayout({
   return (
     <html lang="en" data-theme="light" suppressHydrationWarning>
       <head>
+        <meta name="google-adsense-account" content="ca-pub-8067856882124743" />
         <Script
           id="ga4-head-script"
           strategy="beforeInteractive"
