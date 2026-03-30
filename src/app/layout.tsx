@@ -76,6 +76,14 @@ export default function RootLayout({
     <html lang="en" data-theme="light" suppressHydrationWarning>
       <head>
         <meta name="google-adsense-account" content="ca-pub-8067856882124743" />
+        {/* Google AdSense - Direct implementation as recommended */}
+        <Script
+          id="adsense-head"
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8067856882124743"
+          crossOrigin="anonymous"
+          strategy="beforeInteractive"
+        />
         {/* Google Consent Management Platform */}
         <Script
           id="google-cmp"
