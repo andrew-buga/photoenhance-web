@@ -19,6 +19,17 @@ export default function BeforeAfterSlider({
   const [position, setPosition] = useState(50);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Log image dimensions for debugging
+  const handleAfterImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const img = e.currentTarget;
+    console.log(`[BeforeAfterSlider] After (enhanced) image loaded: ${img.naturalWidth}x${img.naturalHeight}`);
+  };
+
+  const handleBeforeImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const img = e.currentTarget;
+    console.log(`[BeforeAfterSlider] Before (original) image loaded: ${img.naturalWidth}x${img.naturalHeight}`);
+  };
+
   const handleMouseDown = () => {
     setIsDragging(true);
   };
@@ -60,6 +71,7 @@ export default function BeforeAfterSlider({
         src={afterUrl}
         alt={`${alt} - Enhanced`}
         className="absolute inset-0 h-full w-full object-cover select-none pointer-events-none"
+        onLoad={handleAfterImageLoad}
         draggable={false}
       />
 
@@ -71,6 +83,7 @@ export default function BeforeAfterSlider({
         style={{
           clipPath: `inset(0 ${100 - position}% 0 0)`,
         }}
+        onLoad={handleBeforeImageLoad}
         draggable={false}
       />
 

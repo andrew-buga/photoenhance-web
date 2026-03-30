@@ -186,8 +186,11 @@ export default function EnhanceTool() {
       let outputUrl: string;
       try {
         outputUrl = await requestUpscale(file, scale);
+        console.log("[EnhanceTool] API upscale success");
       } catch {
+        console.warn("[EnhanceTool] API upscale failed, using local fallback");
         outputUrl = await createLocalUpscale(file, scale);
+        console.log("[EnhanceTool] Local upscale completed");
       }
 
       setAfterPreviewUrl(outputUrl);
