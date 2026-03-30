@@ -186,11 +186,17 @@ export default function EnhanceTool() {
       let outputUrl: string;
       try {
         outputUrl = await requestUpscale(file, scale);
-        console.log("[EnhanceTool] API upscale success");
+        if (process.env.NODE_ENV === 'development') {
+          console.log("[EnhanceTool] API upscale success");
+        }
       } catch {
-        console.warn("[EnhanceTool] API upscale failed, using local fallback");
+        if (process.env.NODE_ENV === 'development') {
+          console.warn("[EnhanceTool] API upscale failed, using local fallback");
+        }
         outputUrl = await createLocalUpscale(file, scale);
-        console.log("[EnhanceTool] Local upscale completed");
+        if (process.env.NODE_ENV === 'development') {
+          console.log("[EnhanceTool] Local upscale completed");
+        }
       }
 
       setAfterPreviewUrl(outputUrl);
@@ -256,11 +262,13 @@ export default function EnhanceTool() {
               onDragOver={(event) => event.preventDefault()}
             >
               <input
+                id="image-upload-input"
                 ref={inputRef}
                 type="file"
                 accept="image/*"
                 onChange={(event) => handleFiles(event.target.files)}
                 className="hidden"
+                aria-label="Upload image file"
               />
               <div className="text-lg font-semibold text-[var(--text)]">
                 Drop your photo here

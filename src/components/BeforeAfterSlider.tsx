@@ -22,12 +22,16 @@ export default function BeforeAfterSlider({
   // Log image dimensions for debugging
   const handleAfterImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
     const img = e.currentTarget;
-    console.log(`[BeforeAfterSlider] After (enhanced) image loaded: ${img.naturalWidth}x${img.naturalHeight}`);
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[BeforeAfterSlider] After (enhanced) image loaded: ${img.naturalWidth}x${img.naturalHeight}`);
+    }
   };
 
   const handleBeforeImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
     const img = e.currentTarget;
-    console.log(`[BeforeAfterSlider] Before (original) image loaded: ${img.naturalWidth}x${img.naturalHeight}`);
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[BeforeAfterSlider] Before (original) image loaded: ${img.naturalWidth}x${img.naturalHeight}`);
+    }
   };
 
   const handleMouseDown = () => {
@@ -55,16 +59,38 @@ export default function BeforeAfterSlider({
     setPosition(Math.max(0, Math.min(100, newPosition)));
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    switch (e.key) {
+      case "ArrowLeft":
+        e.preventDefault();
+        setPosition((prev) => Math.max(0, prev - 5));
+        break;
+      case "ArrowRight":
+        e.preventDefault();
+        setPosition((prev) => Math.min(100, prev + 5));
+        break;
+      default:
+        break;
+    }
+  };
+
   return (
     <div
       ref={containerRef}
       className="relative w-full overflow-hidden rounded-2xl border border-[var(--border)] bg-black shadow-2xl"
       style={aspectRatio ? { aspectRatio } : { aspectRatio: "16/10" }}
+      role="slider"
+      aria-label="Image comparison: drag to compare original and enhanced photos"
+      aria-valuenow={Math.round(position)}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      tabIndex={0}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleMouseUp}
+      onKeyDown={handleKeyDown}
     >
       {/* After Image (Background) - the enhanced version */}
       <img

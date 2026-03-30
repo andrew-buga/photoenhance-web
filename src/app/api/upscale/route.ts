@@ -13,7 +13,9 @@ async function upscaleWithReplicate(
 ): Promise<string | null> {
   const token = process.env.REPLICATE_API_TOKEN;
   if (!token) {
-    console.error("[Upscale] No REPLICATE_API_TOKEN found in environment");
+    if (process.env.NODE_ENV === 'development') {
+      console.error("[Upscale] No REPLICATE_API_TOKEN found in environment");
+    }
     return null;
   }
 
@@ -24,7 +26,9 @@ async function upscaleWithReplicate(
   };
 
   try {
-    console.log("[Upscale] Starting Replicate API call...");
+    if (process.env.NODE_ENV === 'development') {
+      console.log("[Upscale] Starting Replicate API call...");
+    }
     const response = await fetch("https://api.replicate.com/v1/predictions", {
       method: "POST",
       headers: {
@@ -36,7 +40,9 @@ async function upscaleWithReplicate(
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(`[Upscale] API returned ${response.status}:`, errorText);
+      if (process.env.NODE_ENV === 'development') {
+        console.error(`[Upscale] API returned ${response.status}:`, errorText);
+      }
       return null;
     }
 
@@ -47,11 +53,15 @@ async function upscaleWithReplicate(
       urls?: { get?: string };
     };
 
-    console.log("[Upscale] Prediction created:", prediction.id);
+    if (process.env.NODE_ENV === 'development') {
+      console.log("[Upscale] Prediction created:", prediction.id);
+    }
 
     const statusUrl = prediction.urls?.get;
     if (!statusUrl) {
-      console.error("[Upscale] No status URL in response");
+      if (process.env.NODE_ENV === 'development') {
+        console.error("[Upscale] No status URL in response");
+      }
       return null;
     }
 
@@ -64,7 +74,9 @@ async function upscaleWithReplicate(
       });
 
       if (!statusResponse.ok) {
-        console.error(`[Upscale] Status check failed: ${statusResponse.status}`);
+        if (process.env.NODE_ENV === 'development') {
+          console.error(`[Upscale] Status check failed: ${statusResponse.status}`);
+        }
         break;
       }
 
@@ -73,10 +85,14 @@ async function upscaleWithReplicate(
         output?: string | string[];
       };
 
-      console.log(`[Upscale] Status check ${i + 1}/30: ${statusData.status}`);
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`[Upscale] Status check ${i + 1}/30: ${statusData.status}`);
+      }
 
       if (statusData.status === "succeeded") {
-        console.log("[Upscale] Success! Returning output...");
+        if (process.env.NODE_ENV === 'development') {
+          console.log("[Upscale] Success! Returning output...");
+        }
         if (typeof statusData.output === "string") return statusData.output;
         if (Array.isArray(statusData.output) && statusData.output[0]) {
           return statusData.output[0];
@@ -85,17 +101,23 @@ async function upscaleWithReplicate(
       }
 
       if (statusData.status === "failed" || statusData.status === "canceled") {
-        console.error("[Upscale] Processing failed:", statusData.status);
+        if (process.env.NODE_ENV === 'development') {
+          console.error("[Upscale] Processing failed:", statusData.status);
+        }
         break;
       }
 
       await new Promise((resolve) => setTimeout(resolve, 700));
     }
 
-    console.warn("[Upscale] Timeout: Did not get result after 30 checks");
+    if (process.env.NODE_ENV === 'development') {
+      console.warn("[Upscale] Timeout: Did not get result after 30 checks");
+    }
     return null;
   } catch (error) {
-    console.error("[Upscale] Exception:", error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error("[Upscale] Exception:", error);
+    }
     return null;
   }
 }
@@ -126,20 +148,28 @@ export async function POST(request: NextRequest) {
     const arrayBuffer = await file.arrayBuffer();
     const base64 = Buffer.from(arrayBuffer).toString("base64");
 
-    console.log(`[Upscale] Received file: ${file.name} (${file.size} bytes), scale: x${scale}`);
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[Upscale] Received file: ${file.name} (${file.size} bytes), scale: x${scale}`);
+    }
 
     const replicateUrl = await upscaleWithReplicate(base64, scale, file.type);
 
     if (replicateUrl) {
-      console.log("[Upscale] Returning Replicate result");
+      if (process.env.NODE_ENV === 'development') {
+        console.log("[Upscale] Returning Replicate result");
+      }
       return NextResponse.json({ outputUrl: replicateUrl, provider: "replicate" });
     }
 
     // No Replicate result - let client handle upscaling
-    console.warn("[Upscale] Replicate failed, delegating to client-side upscaling");
+    if (process.env.NODE_ENV === 'development') {
+      console.warn("[Upscale] Replicate failed, delegating to client-side upscaling");
+    }
     return NextResponse.json({ error: "Replicate upscaling failed" }, { status: 503 });
   } catch (error) {
-    console.error("[Upscale] Exception in POST handler:", error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error("[Upscale] Exception in POST handler:", error);
+    }
     return NextResponse.json({ error: "Upscale failed: " + String(error) }, { status: 500 });
   }
 }
