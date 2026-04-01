@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef, useRef, useState } from "react";
+import { forwardRef, useRef, useState, useEffect } from "react";
 
 type BeforeAfterSliderProps = {
   beforeUrl: string;
@@ -20,6 +20,35 @@ export default forwardRef<HTMLDivElement, BeforeAfterSliderProps>(
     const [beforeLoaded, setBeforeLoaded] = useState(false);
     const [afterLoaded, setAfterLoaded] = useState(false);
     const [loadError, setLoadError] = useState(false);
+    const loadTimeoutRef = useRef<any>(null);
+
+    const handleImageLoad = (imageType: 'before' | 'after') => {
+      if (imageType === 'before') setBeforeLoaded(true);
+      else setAfterLoaded(true);
+      
+      // Clear timeout when image loads
+      if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
+    };
+
+    const handleImageError = () => {
+      setLoadError(true);
+      if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
+    };
+
+    // Set timeout for image loading (10 seconds max)
+    useEffect(() => {
+      loadTimeoutRef.current = setTimeout(() => {
+        if (!beforeLoaded || !afterLoaded) {
+          console.warn('Image loading timeout - using fallback');
+          setBeforeLoaded(true);
+          setAfterLoaded(true);
+        }
+      }, 10000);
+
+      return () => {
+        if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
+      };
+    }, [beforeLoaded, afterLoaded]);
 
     const handleMouseDown = () => setIsDragging(true);
     const handleMouseUp = () => setIsDragging(false);
@@ -107,8 +136,8 @@ export default forwardRef<HTMLDivElement, BeforeAfterSliderProps>(
           src={afterUrl}
           alt={`${alt} - Enhanced`}
           className="absolute inset-0 h-full w-full object-cover select-none pointer-events-none"
-          onLoad={() => setAfterLoaded(true)}
-          onError={() => setLoadError(true)}
+          onLoad={() => handleImageLoad('after')}
+          onError={handleImageError}
           draggable={false}
         />
 
@@ -120,8 +149,8 @@ export default forwardRef<HTMLDivElement, BeforeAfterSliderProps>(
           style={{
             clipPath: `inset(0 ${100 - position}% 0 0)`,
           }}
-          onLoad={() => setBeforeLoaded(true)}
-          onError={() => setLoadError(true)}
+          onLoad={() => handleImageLoad('before')}
+          onError={handleImageError}
           draggable={false}
         />
 

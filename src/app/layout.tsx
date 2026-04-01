@@ -76,14 +76,12 @@ export default function RootLayout({
     <html lang="en" data-theme="light" suppressHydrationWarning>
       <head>
         <meta name="google-adsense-account" content="ca-pub-8067856882124743" />
-        {/* Google AdSense - Direct implementation */}
-        <Script
-          id="adsense-head"
+        {/* Google AdSense - use native script tag instead of Next.js Script */}
+        <script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8067856882124743"
           crossOrigin="anonymous"
-          strategy="lazyOnload"
-        />
+        ></script>
         <Script
           id="ga4-head-script"
           strategy="beforeInteractive"
