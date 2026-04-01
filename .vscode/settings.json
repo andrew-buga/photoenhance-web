@@ -12,5 +12,8 @@
     ".cspellignore",
     "node_modules",
     ".next"
-  ]
+],
+"cSpell.words": [
+    "MZMLV"
+]
 }

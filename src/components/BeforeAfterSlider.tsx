@@ -35,15 +35,21 @@ export default forwardRef<HTMLDivElement, BeforeAfterSliderProps>(
       if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
     };
 
-    // Set timeout for image loading (10 seconds max)
+    // Set timeout for image loading (3 seconds max)
     useEffect(() => {
       loadTimeoutRef.current = setTimeout(() => {
         if (!beforeLoaded || !afterLoaded) {
-          console.warn('Image loading timeout - using fallback');
-          setBeforeLoaded(true);
-          setAfterLoaded(true);
+          console.warn('Image loading timeout after 3 seconds');
+          // Only force load if at least one image loaded (better UX)
+          if (beforeLoaded || afterLoaded) {
+            setBeforeLoaded(true);
+            setAfterLoaded(true);
+          } else {
+            // Both failed, show error
+            setLoadError(true);
+          }
         }
-      }, 10000);
+      }, 3000); // 3 second timeout, not 10
 
       return () => {
         if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);

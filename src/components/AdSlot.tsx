@@ -29,16 +29,28 @@ export default function AdSlot({
   useEffect(() => {
     if (!mounted || !clientId || !slot) return;
     
-    // Defer ad initialization to next frame
-    const timer = setTimeout(() => {
-      try {
-        (window.adsbygoogle = window.adsbygoogle || []).push({});
-      } catch (e) {
-        console.error("AdSense push error:", e);
-      }
-    }, 0);
-
-    return () => clearTimeout(timer);
+    // Check if adsbygoogle is available (script must be loaded)
+    if (typeof window === 'undefined') return;
+    if (!(window as any).adsbygoogle) {
+      // Script not loaded yet, wait and retry
+      const timer = setTimeout(() => {
+        if ((window as any).adsbygoogle) {
+          try {
+            (window.adsbygoogle = window.adsbygoogle || []).push({});
+          } catch (e) {
+            console.error("AdSense push error:", e);
+          }
+        }
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+    
+    // Script is loaded, push immediately
+    try {
+      (window.adsbygoogle = window.adsbygoogle || []).push({});
+    } catch (e) {
+      console.error("AdSense push error:", e);
+    }
   }, [mounted, clientId, slot]);
 
   if (!mounted || !clientId || !slot) {

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Sora, Space_Grotesk } from "next/font/google";
 import Script from "next/script";
-import AdSenseLoader from "@/components/AdSenseLoader";
 import AnalyticsLoader from "@/components/AnalyticsLoader";
 import CookieBanner from "@/components/CookieBanner";
 import "./globals.css";
@@ -107,7 +106,6 @@ window.gtag('config', '${measurementId}', { anonymize_ip: true });`}
       >
         {children}
         <AnalyticsLoader />
-        <AdSenseLoader />
         <CookieBanner />
       </body>
     </html>
