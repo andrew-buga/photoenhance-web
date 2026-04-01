@@ -1,0 +1,22 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "words": [
+    "photoenhance",
+    "Replicate",
+    "Vercel",
+    "csrf",
+    "adsense",
+    "upscale",
+    "upscaling",
+    "cspellrc",
+    "cspellignore"
+  ],
+  "ignoreWords": [],
+  "ignorePaths": [
+    "node_modules",
+    ".next",
+    "dist",
+    "build"
+  ]
+}

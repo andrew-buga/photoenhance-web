@@ -1,0 +1,16 @@
+{
+  "cSpell.ignoreWords": [
+    "photoenhance",
+    "adsense",
+    "cspellrc",
+    "cspellignore",
+    "Replicate",
+    "upscaling"
+  ],
+  "cSpell.ignorePaths": [
+    ".cspellrc.json",
+    ".cspellignore",
+    "node_modules",
+    ".next"
+  ]
+}

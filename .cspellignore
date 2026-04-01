@@ -1,0 +1,21 @@
+# Ignore cSpell config and lock files
+.cspellrc.json
+.cspellrc
+cspell.config.js
+cspell.config.json
+
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+
+# Build outputs
+.next/
+dist/
+build/
+out/
+
+# Environment
+.env
+.env.local
+.env.*.local
