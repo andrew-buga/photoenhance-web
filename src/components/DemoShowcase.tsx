@@ -21,12 +21,14 @@ export default function DemoShowcase() {
             key={item.id}
             className="rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-lg"
           >
-            <BeforeAfterSlider
-              beforeUrl={item.beforeUrl}
-              afterUrl={item.afterUrl}
-              alt={item.title}
-              aspectRatio={item.aspectRatio}
-            />
+            <div className="bg-slate-200 dark:bg-slate-700 rounded-2xl overflow-hidden">
+              <BeforeAfterSlider
+                beforeUrl={item.beforeUrl}
+                afterUrl={item.afterUrl}
+                alt={item.title}
+                aspectRatio={item.aspectRatio}
+              />
+            </div>
             <h3 className="mt-4 text-lg font-bold">{item.title}</h3>
             <p className="mt-2 text-sm text-[var(--muted)]">{item.description}</p>
           </article>

@@ -124,6 +124,39 @@ export default function EnhanceTool() {
     }
   }, [phase, scale, track]);
 
+  // Load file from sessionStorage if uploaded from home page
+  useEffect(() => {
+    if (phase !== "idle") return; // Only do this on initial load
+
+    const fileData = sessionStorage.getItem("upload-file-data");
+    const fileName = sessionStorage.getItem("upload-file-name");
+
+    if (fileData && fileName) {
+      try {
+        // Convert data URL to blob
+        const arr = fileData.split(",");
+        const mime = arr[0].match(/:(.*?);/)?.[1] || "image/jpeg";
+        const bstr = atob(arr[1]);
+        const n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        for (let i = 0; i < n; i++) {
+          u8arr[i] = bstr.charCodeAt(i);
+        }
+        const blob = new Blob([u8arr], { type: mime });
+        const file = new File([blob], fileName, { type: mime });
+
+        // Load the file
+        handleFileSelect(file);
+
+        // Clear session storage
+        sessionStorage.removeItem("upload-file-data");
+        sessionStorage.removeItem("upload-file-name");
+      } catch (error) {
+        console.error("Failed to load file from session:", error);
+      }
+    }
+  }, [phase, handleFileSelect]);
+
   // Memoized
   const outputSize = useMemo(() => {
     if (!imageSize) return null;

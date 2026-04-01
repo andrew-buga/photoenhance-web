@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import useCookieConsent from "@/components/useCookieConsent";
 
 type AdSlotProps = {
@@ -23,15 +23,22 @@ export default function AdSlot({
   const { hasConsent } = useCookieConsent();
   const clientId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT;
   const canRender = hasConsent && clientId && slot;
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    if (!canRender) return;
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!canRender || !mounted) return;
     try {
       (window.adsbygoogle = window.adsbygoogle || []).push({});
-    } catch {
-      // ignore adsbygoogle push errors during SSR/hydration
+    } catch (e) {
+      console.error("AdSense push error:", e);
     }
-  }, [canRender]);
+  }, [canRender, mounted]);
+
+  if (!mounted) return null;
 
   if (!canRender) {
     return (
