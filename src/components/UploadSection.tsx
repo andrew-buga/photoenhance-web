@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useRef } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 type UploadSectionProps = {
@@ -9,12 +10,28 @@ type UploadSectionProps = {
 
 export default function UploadSection({ onFileSelect }: UploadSectionProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const router = useRouter();
 
   const handleFile = useCallback((file: File) => {
     if (onFileSelect) {
       onFileSelect(file);
+    } else {
+      // If no handler, store file in sessionStorage and navigate to enhance
+      try {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          if (e.target?.result) {
+            sessionStorage.setItem("upload-file-data", e.target.result as string);
+            sessionStorage.setItem("upload-file-name", file.name);
+            router.push("/enhance");
+          }
+        };
+        reader.readAsDataURL(file);
+      } catch (err) {
+        console.error("Failed to read file:", err);
+      }
     }
-  }, [onFileSelect]);
+  }, [onFileSelect, router]);
 
   const handleFiles = useCallback((files: FileList | null) => {
     if (!files || !files[0]) return;

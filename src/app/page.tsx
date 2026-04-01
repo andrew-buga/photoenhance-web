@@ -1,3 +1,4 @@
+import AdSlot from "@/components/AdSlot";
 import DemoShowcase from "@/components/DemoShowcase";
 import HeroSection from "@/components/HeroSection";
 import SiteFooter from "@/components/SiteFooter";
@@ -18,6 +19,15 @@ export default function Home() {
         </section>
 
         <DemoShowcase />
+
+        {/* Advertisement */}
+        <section className="mx-auto max-w-6xl px-6 py-12">
+          <AdSlot
+            label="Advertisement"
+            size="wide"
+            slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_OVERLAY}
+          />
+        </section>
 
         <section className="mx-auto max-w-6xl px-6 py-12">
           <div className="grid gap-6 md:grid-cols-3">
@@ -110,6 +120,15 @@ export default function Home() {
               </div>
             ))}
           </div>
+        </section>
+
+        {/* Advertisement Before FAQ */}
+        <section className="mx-auto max-w-6xl px-6 py-12">
+          <AdSlot
+            label="Advertisement"
+            size="wide"
+            slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_OVERLAY}
+          />
         </section>
 
         <section id="faq" className="mx-auto max-w-6xl px-6 py-16">

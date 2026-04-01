@@ -1,3 +1,4 @@
+import AdSlot from "@/components/AdSlot";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 
@@ -15,6 +16,14 @@ export default function ContactPage() {
           <p className="text-sm text-[var(--muted)]">
             We reply within 1-2 business days.
           </p>
+        </div>
+
+        <div className="mt-12">
+          <AdSlot
+            label="Advertisement"
+            size="wide"
+            slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_OVERLAY}
+          />
         </div>
       </main>
       <SiteFooter />

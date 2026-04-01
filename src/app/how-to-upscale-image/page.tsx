@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import AdSlot from "@/components/AdSlot";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 
@@ -62,6 +63,14 @@ export default function HowToUpscaleImagePage() {
             <li>Use x2 for web, x4 for product photos, x6 for prints.</li>
             <li>Review text edges and skin tones before exporting.</li>
           </ul>
+
+          <div className="mt-10">
+            <AdSlot
+              label="Advertisement"
+              size="wide"
+              slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_OVERLAY}
+            />
+          </div>
 
           <div className="mt-10 rounded-2xl bg-[var(--surface-2)] p-6">
             <h3 className="text-xl font-bold">Try it now</h3>
