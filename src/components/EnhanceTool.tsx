@@ -124,35 +124,27 @@ export default function EnhanceTool() {
     }
   }, [phase, scale, track]);
 
-  // Load file from sessionStorage if uploaded from home page
+  // Load file from upload navigation (window.__uploadedFile or sessionStorage)
   useEffect(() => {
     if (phase !== "idle") return; // Only do this on initial load
 
-    const fileData = sessionStorage.getItem("upload-file-data");
+    // Method 1: Check window.__uploadedFile (fastest, from navigation)
+    const uploadedFile = (window as any).__uploadedFile as File | undefined;
+    if (uploadedFile) {
+      handleFileSelect(uploadedFile);
+      delete (window as any).__uploadedFile; // Clean up
+      return;
+    }
+
+    // Method 2: Check sessionStorage (backup)
     const fileName = sessionStorage.getItem("upload-file-name");
-
-    if (fileData && fileName) {
+    if (fileName) {
       try {
-        // Convert data URL to blob
-        const arr = fileData.split(",");
-        const mime = arr[0].match(/:(.*?);/)?.[1] || "image/jpeg";
-        const bstr = atob(arr[1]);
-        const n = bstr.length;
-        const u8arr = new Uint8Array(n);
-        for (let i = 0; i < n; i++) {
-          u8arr[i] = bstr.charCodeAt(i);
-        }
-        const blob = new Blob([u8arr], { type: mime });
-        const file = new File([blob], fileName, { type: mime });
-
-        // Load the file
-        handleFileSelect(file);
-
-        // Clear session storage
-        sessionStorage.removeItem("upload-file-data");
+        // Just tell user to re-upload if we can't access the file
+        console.log("File metadata found but full file not available. Please re-upload.");
+      } finally {
         sessionStorage.removeItem("upload-file-name");
-      } catch (error) {
-        console.error("Failed to load file from session:", error);
+        sessionStorage.removeItem("upload-file-size");
       }
     }
   }, [phase, handleFileSelect]);

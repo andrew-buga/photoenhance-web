@@ -16,20 +16,23 @@ export default function UploadSection({ onFileSelect }: UploadSectionProps) {
     if (onFileSelect) {
       onFileSelect(file);
     } else {
-      // If no handler, store file in sessionStorage and navigate to enhance
-      try {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          if (e.target?.result) {
-            sessionStorage.setItem("upload-file-data", e.target.result as string);
+      // Store File object in window (persists during navigation)
+      (window as any).__uploadedFile = file;
+      router.push("/enhance");
+      
+      // Also store in sessionStorage as backup (in case window object is cleared)
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (e.target?.result && file.size < 5 * 1024 * 1024) { // Only cache if < 5MB
+          try {
             sessionStorage.setItem("upload-file-name", file.name);
-            router.push("/enhance");
+            sessionStorage.setItem("upload-file-size", file.size.toString());
+          } catch (err) {
+            console.warn("sessionStorage limit exceeded:", err);
           }
-        };
-        reader.readAsDataURL(file);
-      } catch (err) {
-        console.error("Failed to read file:", err);
-      }
+        }
+      };
+      reader.readAsArrayBuffer(file); // More efficient than DataURL
     }
   }, [onFileSelect, router]);
 

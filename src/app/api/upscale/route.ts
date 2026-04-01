@@ -2,7 +2,25 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 
 const MAX_SIZE_MB = 12;
-const CSRF_SECRET = process.env.CSRF_SECRET || "dev-secret-key-change-in-production";
+
+// CSRF Secret - use environment variable, generate random if not set (development only)
+const CSRF_SECRET = (() => {
+  const envSecret = process.env.CSRF_SECRET;
+  if (envSecret) return envSecret;
+  
+  // Fallback for development - generate deterministic key based on server start time
+  // This will be different on each server restart, which is acceptable for dev
+  if (process.env.NODE_ENV === 'development') {
+    return crypto.randomBytes(32).toString('hex');
+  }
+  
+  // Production MUST have CSRF_SECRET set
+  throw new Error(
+    'CSRF_SECRET environment variable is required in production. ' +
+    'Please set it in your Vercel project settings.'
+  );
+})();
+
 const CSRF_TOKEN_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours
 
 // Rate limiter (in-memory, resets on server restart)
