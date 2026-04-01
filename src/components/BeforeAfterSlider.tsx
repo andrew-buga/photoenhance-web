@@ -188,32 +188,3 @@ export default forwardRef<HTMLDivElement, BeforeAfterSliderProps>(
     );
   }
 );
-          </svg>
-        </div>
-      </div>
-
-      {/* Labels */}
-      <div className="pointer-events-none absolute top-4 left-4 flex flex-col gap-1">
-        <div className="text-xs font-semibold uppercase tracking-widest text-white drop-shadow-lg">
-          Original
-        </div>
-        <div className="text-2xl font-bold text-white drop-shadow-lg">Before</div>
-      </div>
-
-      <div className="pointer-events-none absolute top-4 right-4 flex flex-col gap-1 text-right">
-        <div className="text-xs font-semibold uppercase tracking-widest text-white drop-shadow-lg">
-          Enhanced
-        </div>
-        <div className="text-2xl font-bold text-white drop-shadow-lg">After</div>
-      </div>
-
-      {/* Click hint (hidden on mobile) */}
-      <div className="pointer-events-none absolute bottom-4 left-1/2 transform -translate-x-1/2 hidden sm:block">
-        <div className="text-xs font-medium text-white/70 drop-shadow-lg">
-          Drag to compare
-        </div>
-      </div>
-    </div>
-  );
-}
-);

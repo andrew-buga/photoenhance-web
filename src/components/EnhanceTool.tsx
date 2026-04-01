@@ -124,6 +124,24 @@ export default function EnhanceTool() {
     }
   }, [phase, scale, track]);
 
+  // Handlers - define early for use in effects
+  const handleFileSelect = useCallback((selectedFile: File) => {
+    successTrackedRef.current = false;
+    setFile(selectedFile);
+    const url = URL.createObjectURL(selectedFile);
+    setPreviewUrl(url);
+    setPhase("ready");
+    setProgress(0);
+    setErrorMessage("");
+    setShowAlmostDone(false);
+    setAfterPreviewUrl(null);
+    setScale(4);
+    track({ action: "upload", category: "enhance" });
+    const img = new Image();
+    img.onload = () => setImageSize({ width: img.width, height: img.height });
+    img.src = url;
+  }, [track]);
+
   // Load file from upload navigation (window.__uploadedFile or sessionStorage)
   useEffect(() => {
     if (phase !== "idle") return; // Only do this on initial load
@@ -162,24 +180,6 @@ export default function EnhanceTool() {
     const ext = extIndex > 0 ? file.name.slice(extIndex) : ".jpg";
     return `${base}_x${scale}${ext}`;
   }, [file, scale]);
-
-  // Handlers
-  const handleFileSelect = useCallback((selectedFile: File) => {
-    successTrackedRef.current = false;
-    setFile(selectedFile);
-    const url = URL.createObjectURL(selectedFile);
-    setPreviewUrl(url);
-    setPhase("ready");
-    setProgress(0);
-    setErrorMessage("");
-    setShowAlmostDone(false);
-    setAfterPreviewUrl(null);
-    setScale(4);
-    track({ action: "upload", category: "enhance" });
-    const img = new Image();
-    img.onload = () => setImageSize({ width: img.width, height: img.height });
-    img.src = url;
-  }, [track]);
 
   const handleEnhance = useCallback(async () => {
     if (!file || !previewUrl) return;

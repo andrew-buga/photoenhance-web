@@ -83,10 +83,6 @@ export default function RootLayout({
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8067856882124743"
           crossOrigin="anonymous"
           strategy="lazyOnload"
-          onLoad={() => {
-            // Trigger AdSense check when script loads
-            (window as any).adsbygoogle = (window as any).adsbygoogle || [];
-          }}
         />
         <Script
           id="ga4-head-script"
