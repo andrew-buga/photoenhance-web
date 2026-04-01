@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import useCookieConsent from "@/components/useCookieConsent";
 
 type AdSlotProps = {
   label?: string;
@@ -20,9 +19,7 @@ export default function AdSlot({
   size = "wide",
   slot,
 }: AdSlotProps) {
-  const { hasConsent } = useCookieConsent();
   const clientId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT;
-  const canRender = hasConsent && clientId && slot;
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -30,17 +27,21 @@ export default function AdSlot({
   }, []);
 
   useEffect(() => {
-    if (!canRender || !mounted) return;
-    try {
-      (window.adsbygoogle = window.adsbygoogle || []).push({});
-    } catch (e) {
-      console.error("AdSense push error:", e);
-    }
-  }, [canRender, mounted]);
+    if (!mounted || !clientId || !slot) return;
+    
+    // Defer ad initialization to next frame
+    const timer = setTimeout(() => {
+      try {
+        (window.adsbygoogle = window.adsbygoogle || []).push({});
+      } catch (e) {
+        console.error("AdSense push error:", e);
+      }
+    }, 0);
 
-  if (!mounted) return null;
+    return () => clearTimeout(timer);
+  }, [mounted, clientId, slot]);
 
-  if (!canRender) {
+  if (!mounted || !clientId || !slot) {
     return (
       <div
         className={`flex ${sizeClasses[size]} w-full items-center justify-center rounded-2xl border border-dashed border-[var(--border)] bg-[var(--surface-2)] text-sm font-semibold uppercase tracking-widest text-[var(--muted)]`}
