@@ -149,6 +149,7 @@ export default forwardRef<HTMLDivElement, BeforeAfterSliderProps>(
           className="absolute inset-0 h-full w-full object-cover select-none pointer-events-none"
           style={{
             clipPath: `inset(0 ${100 - position}% 0 0)`,
+            filter: "blur(12px)",
           }}
           onLoad={() => handleImageLoad('before')}
           onError={handleImageError}
