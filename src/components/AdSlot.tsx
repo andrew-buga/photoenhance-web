@@ -24,33 +24,45 @@ export default function AdSlot({
 
   useEffect(() => {
     setMounted(true);
+    
+    // Debug logging
+    if (typeof window !== 'undefined') {
+      console.log('AdSlot initialized:', {
+        clientId,
+        slot,
+        adsbygoogleLoaded: !!(window as any).adsbygoogle,
+      });
+    }
   }, []);
 
   useEffect(() => {
-    if (!mounted || !clientId || !slot) return;
+    if (!mounted || !clientId || !slot) {
+      console.log('AdSlot: Missing requirements', { mounted, clientId, slot });
+      return;
+    }
     
     // Check if adsbygoogle is available (script must be loaded)
     if (typeof window === 'undefined') return;
+    
+    const attemptPush = () => {
+      if ((window as any).adsbygoogle) {
+        try {
+          console.log('Pushing ad slot:', slot);
+          (window.adsbygoogle = window.adsbygoogle || []).push({});
+        } catch (e) {
+          console.error("AdSense push error:", e);
+        }
+      }
+    };
+    
     if (!(window as any).adsbygoogle) {
       // Script not loaded yet, wait and retry
-      const timer = setTimeout(() => {
-        if ((window as any).adsbygoogle) {
-          try {
-            (window.adsbygoogle = window.adsbygoogle || []).push({});
-          } catch (e) {
-            console.error("AdSense push error:", e);
-          }
-        }
-      }, 500);
+      const timer = setTimeout(attemptPush, 500);
       return () => clearTimeout(timer);
     }
     
     // Script is loaded, push immediately
-    try {
-      (window.adsbygoogle = window.adsbygoogle || []).push({});
-    } catch (e) {
-      console.error("AdSense push error:", e);
-    }
+    attemptPush();
   }, [mounted, clientId, slot]);
 
   if (!mounted || !clientId || !slot) {

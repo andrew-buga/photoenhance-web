@@ -1,7 +1,9 @@
 import BeforeAfterSlider from "@/components/BeforeAfterSlider";
-import { demoItems } from "@/components/demoData";
+import demoConfig from "@/data/demo-config.json";
 
 export default function DemoShowcase() {
+  const demoItems = demoConfig.demos;
+  
   return (
     <section className="mx-auto max-w-6xl px-6 py-16">
       <div className="mb-10 flex items-center justify-between gap-4">
