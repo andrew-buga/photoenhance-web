@@ -1,4 +1,5 @@
 import AdSlot from "@/components/AdSlot";
+import CustomDemoUpload from "@/components/CustomDemoUpload";
 import DemoShowcase from "@/components/DemoShowcase";
 import HeroSection from "@/components/HeroSection";
 import SiteFooter from "@/components/SiteFooter";
@@ -19,6 +20,8 @@ export default function Home() {
         </section>
 
         <DemoShowcase />
+
+        <CustomDemoUpload />
 
         {/* Advertisement */}
         <section className="mx-auto max-w-6xl px-6 py-12">
