@@ -1,4 +1,4 @@
-# Token & Configuration Requirements for PhotoEnhance Web
+w# Token & Configuration Requirements for PhotoEnhance Web
 
 This document lists all external services and tokens required to run PhotoEnhance Web at full capacity.
 
